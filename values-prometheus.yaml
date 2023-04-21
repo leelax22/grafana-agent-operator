@@ -204,9 +204,9 @@ server:
   ## Custom HTTP headers for Liveness/Readiness/Startup Probe
   ##
   ## Useful for providing HTTP Basic Auth to healthchecks
-  probeHeaders: []
-    # - name: "Authorization"
-    #   value: "Bearer ABCDEabcde12345"
+  probeHeaders:
+    - name: "Authorization"
+      value: "Bearer emVuaXRoOndwc2x0bXFscWpTMUA="
 
   ## Additional Prometheus server container arguments
   ##
@@ -623,7 +623,7 @@ serverFiles:
 
   web.config.yml:
     basic_auth_users:
-      zenith: '$2a$12$8Xk56lmhY.R1OnmDYP/tIOncd433Eh0XL2ts6uWz.3N4XVKx0JM56'
+      zenith: '$2a$12$fkoIFwLc6jQfyou5rbHEC.TNgxok4i005Wrnen4diS6Tea4G5P8N6'
 
   ## Records configuration
   ## Ref: https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
@@ -689,7 +689,8 @@ serverFiles:
         # will add targets for each API server which Kubernetes adds an endpoint to
         # the default/kubernetes service.
         relabel_configs:
-          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]            action: keep
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
             regex: default;kubernetes;https
 
       - job_name: 'kubernetes-nodes'

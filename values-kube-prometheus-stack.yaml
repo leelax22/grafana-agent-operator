@@ -1,0 +1,81 @@
+grafana:
+  service:
+    enabled: true
+    type: LoadBalancer
+    port: 80
+    targetPort: 3000
+    nodePort: 31030
+    portName: service
+
+kubeStateMetrics:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+kubelet: #grafana agent가 수집할것이므로 false
+  enabled: false
+
+prometheusOperator:
+  enabled: true
+
+prometheus:
+  thanosService:
+    enabled: false
+
+  service:
+    type: LoadBalancer
+
+  prometheusSpec:
+    retention: 10d
+    retentionSize: ""
+    replicas: 1
+    containers:
+    - name: nginx-proxy
+      image: leelax22/nginxproxy:v1
+      env:
+      - name: FORWARD_HOST
+        value: prometheus-server.default.svc.cluster.local
+      - name: FORWARD_PORT
+        value: "9090"
+      - name: BASIC_USERNAME
+        value: zenith
+      - name: BASIC_PASSWORD
+        value: 'wpsltmqlqjS1@'
+      ports:
+      - containerPort: 8081
+        name: nginx-proxy
+        protocol: TCP
+
+    volumes: 
+    - name: nginx-dir
+      emptyDir: { }
+    - name: nginx-empty
+      emptyDir: { }
+    - name: nginx-run
+      emptyDir: { }
+    - name: nginx-etc
+      emptyDir: { }
+
+    # Additional VolumeMounts on the output StatefulSet definition.
+    volumeMounts: 
+    - mountPath: /etc/nginx/conf.d/
+      name: nginx-dir
+    - mountPath: /var/cache/nginx/client_temp
+      name: nginx-empty
+    - mountPath: /var/run/
+      name: nginx-run
+    - mountPath: /etc/nginx
+      name: nginx-etc
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: managed-csi
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+alertmanager:
+  enabled: false
